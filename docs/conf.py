@@ -5,7 +5,7 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 
 
-project = "dDTW Toolbox"
+project = "dDTW"
 author = "Johannes Zeitler"
 copyright = "2026, Johannes Zeitler"
 release = "0.1"
@@ -48,5 +48,5 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 html_css_files = ["custom.css"]
-html_title = "dDTW Toolbox Documentation"
+html_title = "dDTW Documentation"
 html_logo = os.path.join(html_static_path[0], "figures", "logo_ddtw.png")

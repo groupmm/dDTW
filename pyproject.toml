@@ -3,7 +3,7 @@ requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ddtw-toolbox"
+name = "ddtw"
 version = "0.1.0"
 description = "A unified and efficient PyTorch toolbox for differentiable sequence alignment."
 readme = "README.md"
@@ -83,10 +83,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/groupmm/dDTW_toolbox"
-Documentation = "https://github.com/groupmm/dDTW_toolbox/tree/main/docs"
-Source = "https://github.com/groupmm/dDTW_toolbox"
-Issues = "https://github.com/groupmm/dDTW_toolbox/issues"
+Homepage = "https://github.com/groupmm/dDTW"
+Documentation = "https://groupmm.github.io/dDTW"
+Source = "https://github.com/groupmm/dDTW"
+Issues = "https://github.com/groupmm/dDTW/issues"
 
 [tool.setuptools.packages.find]
 include = ["ddtw*"]
