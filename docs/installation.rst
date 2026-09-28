@@ -5,7 +5,7 @@ Install the package from PyPI:
 
 .. code-block:: bash
 
-   python -m pip install ddtw-toolbox
+   python -m pip install ddtw
 
 For local development, clone the repository and install it in editable mode:
 

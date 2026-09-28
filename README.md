@@ -1,5 +1,5 @@
 <p align="right">
-  <img src="docs/_static/figures/logo_ddtw.png" alt="dDTW logo" width="300">
+  <img src="https://raw.githubusercontent.com/groupmm/dDTW/master/docs/_static/figures/logo_ddtw.png" alt="dDTW logo" width="300">
 </p>
 
 # *d*DTW: A Unified and Efficient Toolbox for Differentiable Sequence Alignment
@@ -22,7 +22,7 @@ If you use the *d*DTW toolbox, please cite the corresponding paper:
 
 To install the *d*DTW toolbox locally, you can clone this repository or use pip:
 ``` bash
-pip install ddtw-toolbox
+pip install ddtw
 ```
 
 To use a loss function from the *d*DTW toolbox, such as SDTW, simply import the module and use it like a normal PyTorch loss:
@@ -50,7 +50,7 @@ compiled locally through `torch.utils.cpp_extension`.
 ### CUDA, PyTorch, and `nvcc` Version Matching
 
 The `cuda_cpp` backend is compiled lazily the first time it is used. This means
-`pip install ddtw-toolbox` installs the Python package and CUDA/C++ source files,
+`pip install ddtw` installs the Python package and CUDA/C++ source files,
 but the native extension is built later by PyTorch's extension loader. For this
 build to work, three CUDA-related components must be compatible:
 
