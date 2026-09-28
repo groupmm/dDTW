@@ -1,0 +1,15 @@
+name: ddtw_cu132
+channels:
+  - nvidia/label/cuda-13.2.0
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - pip
+  - cuda
+  - gcc_linux-64
+  - gxx_linux-64
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cu132
+      - torch
+      - -e ..[test,benchmark]

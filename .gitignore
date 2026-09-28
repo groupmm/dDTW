@@ -1,0 +1,39 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Test and tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.codex/
+.agents/
+
+# Numba cache artifacts
+*.nbc
+*.nbi
+
+# Native extension and CUDA build artifacts
+_cpp_build/
+**/_cpp_build/
+*.o
+*.so
+*.pyd
+*.dll
+*.dylib
+build/
+dist/
+*.egg-info/
+
+# Sphinx documentation build output
+docs/_build/
+
+# Local paper drafts and PDFs
+literature/
+
+# Editor and OS noise
+.DS_Store
+*~

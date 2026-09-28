@@ -1,0 +1,42 @@
+body {
+  line-height: 1.55;
+}
+
+div.body {
+  max-width: 980px;
+}
+
+pre {
+  font-size: 0.9em;
+}
+
+code.literal {
+  white-space: nowrap;
+}
+
+.rst-content table.wrap-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.rst-content table.wrap-table th,
+.rst-content table.wrap-table td {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.rst-content table.wrap-table code.literal {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.rst-content table.wrap-table span.math {
+  white-space: normal;
+}
+
+.rst-content table.wrap-table .MathJax,
+.rst-content table.wrap-table mjx-container {
+  max-width: 100%;
+  white-space: normal;
+}

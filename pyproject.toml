@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ddtw-toolbox"
+version = "0.1.0"
+description = "A unified and efficient PyTorch toolbox for differentiable sequence alignment."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+  { name = "Johannes Zeitler" },
+  { name = "Meinard Mueller" },
+]
+keywords = [
+  "ddtw",
+  "dynamic-time-warping",
+  "differentiable-dtw",
+  "soft-dtw",
+  "sequence-alignment",
+  "ctc",
+  "partial-matching",
+  "subsequence-DTW",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "torch>=2.0",
+]
+
+[project.optional-dependencies]
+cuda = [
+  "ninja",
+]
+numba = [
+  "numba",
+]
+test = [
+  "pytest",
+  "numpy",
+  "numba",
+  "librosa",
+]
+benchmark = [
+  "numpy",
+  "numba>=0.65,<0.66",
+  "ninja",
+]
+notebook = [
+  "jupyter",
+  "matplotlib",
+  "numpy",
+]
+docs = [
+  "sphinx>=7",
+  "sphinx-rtd-theme>=2",
+]
+dev = [
+  "build",
+  "twine",
+  "ninja",
+  "pytest",
+  "numpy",
+  "numba>=0.65,<0.66",
+  "librosa",
+  "jupyter",
+  "matplotlib",
+  "sphinx>=7",
+  "sphinx-rtd-theme>=2",
+]
+
+[project.urls]
+Homepage = "https://github.com/groupmm/dDTW_toolbox"
+Documentation = "https://github.com/groupmm/dDTW_toolbox/tree/main/docs"
+Source = "https://github.com/groupmm/dDTW_toolbox"
+Issues = "https://github.com/groupmm/dDTW_toolbox/issues"
+
+[tool.setuptools.packages.find]
+include = ["ddtw*"]
+
+[tool.setuptools.package-data]
+"ddtw.backend" = ["csrc/*.cpp", "csrc/*.cu"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
