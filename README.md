@@ -6,6 +6,8 @@
 
 © [Johannes Zeitler](https://audiolabs-erlangen.de/fau/assistant/zeitler) and [Meinard Müller](https://www.audiolabs-erlangen.de/fau/professor/mueller), 2026
 
+Extended documentation available [HERE](https://groupmm.github.io/dDTW).
+
 This repository contains the *d*DTW toolbox, a modular PyTorch toolbox with efficient CPU and GPU implementations that unifies DTW, soft/smooth/sparse DTW, subsequence DTW, partial matching, and CTC in a common framework.
 
 If you use the *d*DTW toolbox, please cite the corresponding paper:
