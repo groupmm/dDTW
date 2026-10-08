@@ -52,7 +52,7 @@ def _check_driver():
     if not smi:
         raise RuntimeError("nvidia-smi was not found. A working NVIDIA driver must already be installed.")
     info = subprocess.check_output([smi], text=True, stderr=subprocess.STDOUT)
-    match = re.search(r"CUDA Version:\s*(\d+)\.(\d+)", info)
+    match = re.search(r"CUDA(?: UMD)? Version:\s*(\d+)\.(\d+)", info)
     if not match or tuple(map(int, match.groups())) < (12, 8):
         raise RuntimeError("The default setup requires an NVIDIA driver reporting CUDA support of 12.8 or newer in nvidia-smi.")
     devices = subprocess.check_output([smi, "--query-gpu=name,driver_version", "--format=csv,noheader"], text=True)
