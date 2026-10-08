@@ -1,129 +1,103 @@
 Installation
 ============
 
-Install the package from PyPI:
+CPU
+---
+
+Create and activate a Conda environment, then install the published package:
+
+.. code-block:: bash
+
+   conda create -n ddtw python=3.12 pip
+   conda activate ddtw
+   python -m pip install ddtw
+
+Use ``SDTW(backend="torch")`` for CPU execution.
+For faster CPU execution, install ``ddtw[numba]`` and select
+``backend="cpu_numba"``.
+
+NVIDIA GPU (Linux)
+------------------
+
+You need Linux x86_64, Conda, and an NVIDIA GPU with a working driver reporting
+CUDA support of 12.8 or newer in ``nvidia-smi``. Create an environment once:
+
+.. code-block:: bash
+
+   conda create -n ddtw python=3.12 pip
+   conda activate ddtw
+
+Then install and configure dDTW:
 
 .. code-block:: bash
 
    python -m pip install ddtw
+   ddtw setup-cuda
 
-For local development, clone the repository and install it in editable mode:
+No repository download is needed. Setup installs CUDA 12.8, GCC/G++ 13,
+PyTorch 2.11.0+cu128, Ninja and NumPy in the active environment. It replaces other
+versions of these dependencies, compiles the extension and tests GPU
+forward/backward execution. Allow several minutes and wait for **GPU check
+passed** and **Setup complete**.
+
+Use ``SDTW(backend="cuda_cpp")`` afterward. In future sessions, only
+``conda activate ddtw`` is needed. Dependencies, build settings and compiled
+extensions stay inside the environment. No system CUDA installation, ``sudo``
+or manual activation hooks are needed. Package managers can use their normal
+download caches.
+
+Automatic GPU setup requires a dedicated Conda environment and refuses to modify
+Conda base.
+The setup accepts standard CPython 3.10–3.13; Python 3.12 is the validated default.
+
+Checking the Installation
+-------------------------
+
+.. code-block:: bash
+
+   ddtw setup-cuda --dry-run
+   ddtw check-cuda
+
+The dry run prints installation commands without modifying the environment;
+it does not resolve dependencies or test GPU access. The check compiles/loads
+the extension and tests a loss and gradient on the first visible GPU without
+installing packages. ``python -m ddtw`` can replace ``ddtw`` in either command.
+The repository's ``environments/README.md`` contains troubleshooting details.
+
+Advanced Configuration
+----------------------
+
+The CUDA backend uses PyTorch's JIT extension loader. [#paszke2019]_
+Setup saves the toolkit selection in ``$CONDA_PREFIX/etc/ddtw/``. dDTW uses it
+when building and restores the process's compiler settings afterward. Compiled
+extensions are cached in ``$CONDA_PREFIX/var/cache/ddtw/``, separated by Python
+and PyTorch version. Managed builds use two compiler workers by default; set
+``MAX_JOBS=1`` to reduce memory usage.
+
+``nvidia-smi`` reports the driver's supported CUDA version, not the installed
+toolkit. Setup selects the tested CUDA 12.8 stack even if the driver supports a
+newer version. Both the environment's ``nvcc --version`` and
+``torch.version.cuda`` should report 12.8 afterward.
+
+Rerun ``ddtw setup-cuda`` after an interrupted installation or a PyTorch upgrade.
+It reapplies the pinned dependencies and repeats the check. Failed setup steps
+return a nonzero status; packages installed by previous steps remain available.
+The ``ddtw[cuda]`` extra installs Ninja only and does not execute setup.
+
+Local Development
+-----------------
+
+To work on a repository checkout, install it in editable mode:
 
 .. code-block:: bash
 
    python -m pip install -e ".[test,benchmark]"
-
-Runtime Requirements
---------------------
-
-The implemented losses require:
-
-* Python
-* PyTorch
-* NumPy
-* Numba for the ``cpu_numba`` backend
-* A CUDA-capable PyTorch setup and a working compiler toolchain for the
-  ``cuda_cpp`` backend
-
-CUDA Backend
-------------
-
-The ``cuda_cpp`` backend uses PyTorch's JIT extension loader, which invokes ``ninja``,
-``c++``, and ``nvcc`` to compile the native extension lazily on first use.
-[#paszke2019]_
-For this build to work, the CUDA-related components must be compatible:
-
-* the NVIDIA driver must support the CUDA runtime used by PyTorch;
-* the installed PyTorch wheel must match the intended CUDA version, visible as
-  ``torch.version.cuda``;
-* the active ``nvcc`` must come from a compatible CUDA toolkit and must see the
-  CUDA development headers;
-* the host C++ compiler must be recent enough for PyTorch's extension build.
-
-``nvidia-smi`` reports the maximum CUDA version supported by the driver. It does
-not show which CUDA toolkit or ``nvcc`` is active inside the Python environment.
-Check the active setup with:
-
-.. code-block:: bash
-
-   which nvcc
-   nvcc --version
-
-   python - <<'PY'
-   import torch
-   print(torch.__version__)
-   print(torch.version.cuda)
-   print(torch.cuda.is_available())
-   PY
-
-Conda CUDA Environments
------------------------
-
-The repository contains tested conda environment files for CUDA 11.8, 12.8,
-and 13.2 in ``environments/``. They install PyTorch with pip and the CUDA
-toolkit, ``nvcc``, and host compilers with conda. For example:
-
-.. code-block:: bash
-
-   conda env create -f environments/ddtw_cu128.yml
-   conda activate ddtw_cu128
-   bash environments/install_activation_hooks.sh
-   conda deactivate
-   conda activate ddtw_cu128
-
-The activation hooks clear inherited CUDA/compiler flags such as
-``NVCC_PREPEND_FLAGS``, ``CFLAGS``, and ``CXXFLAGS``, then select the conda
-compiler wrappers through ``CC``, ``CXX``, and ``CUDAHOSTCXX``. This avoids two
-common failure modes: duplicate ``nvcc`` host-compiler flags and accidental use
-of an old system ``c++``.
-
-We tested and verified the ddtw-cuda environments for the following architectures:
-
-.. list-table::
-   :header-rows: 1
-
-   * - GPU
-     - CUDA 11.8
-     - CUDA 12.8
-     - CUDA 13.2
-   * - RTX 1080 TI
-     - ✓
-     - ✗
-     - ✗
-   * - RTX 2080 TI
-     - ✗
-     - ✓
-     - ✓
-   * - RTX 4090 
-     - ✗
-     - ✓
-     - ✓
-   * - RTX A5500
-     - ✗
-     - ✓
-     - ✓
-   * - RTX Pro 6000
-     - ✗
-     - ✓
-     - ✓
-
-
-
-If PyTorch auto-detects the wrong GPU architecture, set
-``TORCH_CUDA_ARCH_LIST`` before rebuilding the extension. Typical values are
-``6.1`` for GTX 1080 Ti, ``7.5`` for RTX 2080, ``8.9`` for RTX 4090, and
-``12.0`` for RTX PRO 6000 Blackwell.
-
-After changing CUDA, compiler, or architecture settings, remove the cached
-extension build and run the tests again:
-
-.. code-block:: bash
-
-   rm -rf ddtw/backend/_cpp_build
+   ddtw setup-cuda
    python -m pytest test
 
-The repository ``README.md`` and ``environments/README.md`` contain more
-concrete setup examples and troubleshooting notes.
+To validate the published package, run the tests from a directory containing
+``test/`` but no local ``ddtw/`` package directory, so that the checkout does
+not shadow the installed package.
 
 Documentation Requirements
 --------------------------

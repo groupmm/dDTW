@@ -20,153 +20,86 @@ If you use the *d*DTW toolbox, please cite the corresponding paper:
     }
 ```
 
-## Installation and Usage
+## Installation
 
-To install the *d*DTW toolbox locally, you can clone this repository or use pip:
-``` bash
-pip install ddtw
+### CPU
+
+Create and activate a Conda environment, then install dDTW:
+
+```bash
+conda create -n ddtw python=3.12 pip
+conda activate ddtw
+python -m pip install ddtw
 ```
 
-To use a loss function from the *d*DTW toolbox, such as SDTW, simply import the module and use it like a normal PyTorch loss:
+Use `backend="torch"` in the example below.
+For faster CPU execution, install `python -m pip install "ddtw[numba]"`
+and use `backend="cpu_numba"`.
+
+### NVIDIA GPU (Linux)
+
+You need Linux x86_64, [Conda](https://docs.conda.io/projects/conda/en/stable/user-guide/install/),
+and an NVIDIA GPU with a working driver supporting CUDA 12.8 or newer.
+Create and activate a dedicated environment once:
+
+```bash
+conda create -n ddtw python=3.12 pip
+conda activate ddtw
+```
+
+Then install and configure dDTW with two commands:
+
+```bash
+python -m pip install ddtw
+ddtw setup-cuda
+```
+
+No repository download is needed. The setup command installs CUDA 12.8,
+GCC/G++ 13, PyTorch 2.11.0+cu128, Ninja and NumPy into the active Conda environment,
+then compiles dDTW and checks GPU forward/backward execution. It replaces other
+versions of these dependencies in that environment. Allow several minutes;
+wait for **GPU check passed** and **Setup complete**.
+
+Dependencies, dDTW build settings and compiled extensions stay inside the
+environment. No `sudo`, system CUDA installation or manual activation hooks
+are needed. In future sessions, only `conda activate ddtw` is needed.
+
+Automatic GPU setup requires a dedicated Conda environment. The setup accepts
+standard Python 3.10–3.13; Python 3.12 is the validated default.
+
+To inspect the installation commands or repeat the GPU check:
+
+```bash
+ddtw setup-cuda --dry-run
+ddtw check-cuda
+```
+
+`python -m ddtw` can replace `ddtw` in these commands. The `ddtw[cuda]` pip extra
+installs Ninja only; it does not perform CUDA setup automatically.
+See [environments/README.md](environments/README.md) for troubleshooting.
+
+## Usage
+
 ```python
+import torch
 from ddtw import SDTW
 
-loss_fn = SDTW()
-loss = loss_fn(X,Y) # assuming X and Y are, e.g., predictions and targets
+X = torch.randn(2, 20, 8, requires_grad=True)
+Y = torch.randn(2, 15, 8)
+
+loss_fn = SDTW(backend="torch")
+loss = loss_fn(X, Y)
 loss.backward()
 ```
 
-## System Requirements
+After GPU setup, use `SDTW(backend="cuda_cpp")` to run the loss on your NVIDIA
+GPU. Inputs are moved to the selected backend's device automatically.
 
-The toolbox is implemented in Python and PyTorch. A basic CPU setup requires:
-
-- Python with a recent PyTorch installation
-- NumPy
-- Numba when using the `cpu_numba` backend
-
-The `torch` backend runs without a custom compiler. The optional but recommended `cuda_cpp` backend
-requires a CUDA-capable PyTorch installation, an NVIDIA GPU, the CUDA toolkit
-including `nvcc`, and a working C++ compiler toolchain because the extension is
-compiled locally through `torch.utils.cpp_extension`.
-
-### CUDA, PyTorch, and `nvcc` Version Matching
-
-The `cuda_cpp` backend is compiled lazily the first time it is used. This means
-`pip install ddtw` installs the Python package and CUDA/C++ source files,
-but the native extension is built later by PyTorch's extension loader. For this
-build to work, three CUDA-related components must be compatible:
-
-- The NVIDIA driver must support the CUDA runtime used by PyTorch.
-- The installed PyTorch wheel must be built for the intended CUDA version, shown
-  by `torch.version.cuda`.
-- The active CUDA compiler `nvcc` must be from a matching CUDA toolkit and must
-  support the GPU architecture being compiled, for example Blackwell GPUs require
-  a recent CUDA toolkit.
-
-You can check the active environment with:
+For development from a repository clone, install your checkout in editable mode:
 
 ```bash
-which nvcc
-nvcc --version
-
-python - <<'PY'
-import torch
-print("torch", torch.__version__)
-print("torch CUDA", torch.version.cuda)
-print("CUDA available", torch.cuda.is_available())
-print("GPU", torch.cuda.get_device_name(0) if torch.cuda.is_available() else None)
-print("capability", torch.cuda.get_device_capability(0) if torch.cuda.is_available() else None)
-PY
+python -m pip install -e ".[test,benchmark]"
 ```
-
-The examples below use conda for the CUDA compiler/toolkit and pip for PyTorch.
-They install the full CUDA toolkit in the environment so `nvcc` and development
-headers such as `cusparse.h` are available. For up-to-date PyTorch wheel
-commands, also check the official PyTorch install selector at
-https://pytorch.org/get-started/locally/.
-
-Ready-made environment files are available in `environments/` for CUDA 11.8,
-12.8, and 13.2. Create one from the repository root and install the activation
-hooks once:
-
-```bash
-conda env create -f environments/ddtw_cu128.yml
-conda activate ddtw_cu128
-bash environments/install_activation_hooks.sh
-conda deactivate
-conda activate ddtw_cu128
-```
-
-The hooks clear inherited compiler and CUDA flags that can otherwise make
-PyTorch's JIT extension builder pick the wrong host compiler or CUDA toolkit.
-
-#### Example: CUDA 11.8
-
-```bash
-conda create -n ddtw_cu118 python=3.11 
-conda activate ddtw_cu118
-
-conda install -c conda-forge gcc_linux-64=11 gxx_linux-64=11 
-conda install -c nvidia/label/cuda-11.8.0 cuda 
-
-pip install torch --index-url https://download.pytorch.org/whl/cu118
-pip install -e ".[test,benchmark]"
-```
-
-#### Example: CUDA 12.8
-
-```bash
-conda create -n ddtw_cu128 python=3.12 
-conda activate ddtw_cu128
-
-conda install -c conda-forge gcc_linux-64=14 gxx_linux-64=14 
-conda install -c nvidia/label/cuda-12.8.0 cuda 
-
-pip install torch --index-url https://download.pytorch.org/whl/cu128
-pip install -e ".[test,benchmark]"
-```
-
-#### Example: CUDA 13.2
-```bash
-conda create -n ddtw_cu132 python=3.12 
-conda activate ddtw_cu132
-
-conda install -c conda-forge gcc_linux-64 gxx_linux-64 
-conda install -c nvidia/label/cuda-13.2 cuda 
-
-pip install torch --index-url https://download.pytorch.org/whl/cu132
-pip install -e ".[test,benchmark]"
-```
-
-After creating any CUDA environment, rebuild the extension from a clean state:
-
-```bash
-rm -rf ddtw/backend/_cpp_build
-python -m pytest test
-python test/benchmark_CTC.py
-python test/benchmark_SDTW.py #--implementation ddtw
-```
-
-If the CUDA binaries don't compile, make sure the activation hooks are installed.
-They remove confusing linker/search flags while keeping the conda compiler
-wrappers selected:
-
-```bash
-bash environments/install_activation_hooks.sh
-conda deactivate
-conda activate ddtw_cu128
-```
-
-The `benchmark_SDTW.py` baseline by Maghoumi uses an older Numba CUDA
-implementation, which we tested for CUDA 11.8 and 12.8. In newer CUDA environments, it may fail with Numba PTX or CUDA context errors. 
-Use `--implementation ddtw` to benchmark only the toolbox CUDA backend.
-
-Additional development and example dependencies are only needed for specific tasks:
-
-- `pytest` for the test suite
-- `librosa` for the DTW and subsequence DTW reference tests
-- Jupyter and Matplotlib for the demo notebook
-- Sphinx and the packages in `docs/requirements.txt` for documentation builds
 
 ## Demo Notebook
 
