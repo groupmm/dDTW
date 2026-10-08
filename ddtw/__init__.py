@@ -36,14 +36,7 @@
 
 """Public package interface for the dDTW toolbox."""
 
-from .ddtw import dDTW
-from .ddtw_variants import CTC
-from .ddtw_variants import DTW
-from .ddtw_variants import SDTW
-from .ddtw_variants import partial_matching
-from .ddtw_variants import smoothDTW
-from .ddtw_variants import sparseDTW
-from .ddtw_variants import subSDTW
+from importlib import import_module
 
 __all__ = [
     "dDTW",
@@ -55,3 +48,19 @@ __all__ = [
     "CTC",
     "partial_matching",
 ]
+
+
+def __getattr__(name):
+    # The setup CLI must work before PyTorch/CUDA are configured, and must not
+    # keep PyTorch loaded while pip replaces it. Preserve the public loss API.
+    if name not in __all__:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    core = import_module(".ddtw", __name__)
+    variants = import_module(".ddtw_variants", __name__)
+    for public_name in __all__:
+        globals()[public_name] = getattr(core if public_name == "dDTW" else variants, public_name)
+    return globals()[name]
+
+
+def __dir__():
+    return sorted(set(globals()) | set(__all__))

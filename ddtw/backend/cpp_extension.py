@@ -35,9 +35,12 @@
 ##################################################################################
 
 import os
+from pathlib import Path
+import sys
 
 import torch
-from torch.utils.cpp_extension import load
+
+from .._cuda_config import TORCH_VERSION, build_environment, config_path
 
 
 _EXTENSION = None
@@ -48,20 +51,29 @@ def get_extension():
     if _EXTENSION is not None:
         return _EXTENSION
 
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    source_dir = os.path.join(this_dir, "csrc")
-    build_dir = os.path.join(this_dir, "_cpp_build")
-    os.makedirs(build_dir, exist_ok=True)
+    if config_path().is_file() and str(torch.__version__) != TORCH_VERSION:
+        raise RuntimeError(f"dDTW CUDA setup expects PyTorch {TORCH_VERSION}. Run ddtw setup-cuda again.")
+    source_dir = Path(__file__).resolve().parent / "csrc"
+    build_dir = (Path(sys.prefix) / "var" / "cache" / "ddtw" /
+                 f"py{sys.version_info.major}{sys.version_info.minor}-torch{torch.__version__}")
+    build_dir.mkdir(parents=True, exist_ok=True)
 
-    _EXTENSION = load(
-        name="ddtw_cuda_ext",
-        sources=[
-            os.path.join(source_dir, "ddtw_extension.cpp"),
-            os.path.join(source_dir, "ddtw_cuda.cu"),
-        ],
-        build_directory=build_dir,
-        extra_cflags=["-O3"],
-        extra_cuda_cflags=["-O3", "--use_fast_math"],
-        verbose=False,
-    )
+    with build_environment():
+        # Import after selecting the environment-local toolkit. PyTorch caches
+        # CUDA_HOME at import time; also handle callers that imported it earlier.
+        from torch.utils import cpp_extension
+        previous_home = cpp_extension.CUDA_HOME
+        if config_path().is_file():
+            cpp_extension.CUDA_HOME = os.environ["CUDA_HOME"]
+        try:
+            _EXTENSION = cpp_extension.load(
+                name="ddtw_cuda_ext",
+                sources=[str(source_dir / "ddtw_extension.cpp"), str(source_dir / "ddtw_cuda.cu")],
+                build_directory=str(build_dir),
+                extra_cflags=["-O3"],
+                extra_cuda_cflags=["-O3", "--use_fast_math"],
+                verbose=False,
+            )
+        finally:
+            cpp_extension.CUDA_HOME = previous_home
     return _EXTENSION

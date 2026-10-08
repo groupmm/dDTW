@@ -6,6 +6,7 @@
    :align: center
 
 |
+
 The *d*\ DTW Toolbox provides PyTorch losses for differentiable sequence alignment.
 It implements a unified graph-based dynamic-programming framework for weakly
 supervised sequence learning problems where target order is known but frame-level timing
