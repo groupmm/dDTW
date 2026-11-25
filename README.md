@@ -140,6 +140,8 @@ reference implementation. `benchmark_CTC.py` compares `ddtw.CTC` with PyTorch's
 `torch.nn.functional.ctc_loss`. Both scripts run forward and backward passes,
 report median timing and peak CUDA memory allocation.
 
+See the [documentation](https://groupmm.github.io/dDTW/benchmark.html) for detailed benchmark analysis across multiple GPU configurations.
+
 ## Documentation
 
 HTML documentation is maintained with Sphinx under `docs/`.
