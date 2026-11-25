@@ -31,6 +31,10 @@ dist/
 # Sphinx documentation build output
 docs/_build/
 
+# Generated benchmark results and plots
+/test/benchmark_plots/
+/test/results/
+
 # Local paper drafts and PDFs
 literature/
 

@@ -40,3 +40,16 @@ code.literal {
   max-width: 100%;
   white-space: normal;
 }
+
+.rst-content details.benchmark-gpu {
+  margin: 1em 0;
+}
+
+.rst-content details.benchmark-gpu > summary {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.rst-content details.benchmark-gpu[open] > summary {
+  margin-bottom: 1em;
+}

@@ -143,6 +143,9 @@ def benchmark(label, module, x, y, warmups, trials):
         "forward_ms": statistics.median(m["forward_ms"] for m in measurements),
         "backward_ms": statistics.median(m["backward_ms"] for m in measurements),
         "total_ms": statistics.median(m["total_ms"] for m in measurements),
+        "forward_ms_std": statistics.stdev(m["forward_ms"] for m in measurements),
+        "backward_ms_std": statistics.stdev(m["backward_ms"] for m in measurements),
+        "total_ms_std": statistics.stdev(m["total_ms"] for m in measurements),
         "cuda_peak_allocated_mb": max(m["cuda_peak_allocated_mb"] for m in measurements),
         "loss": measurements[-1]["loss"],
     }

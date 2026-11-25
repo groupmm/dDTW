@@ -39,6 +39,7 @@ particular graph configurations.
    concepts
    variants
    architecture
+   benchmark
 
 .. toctree::
    :maxdepth: 2
